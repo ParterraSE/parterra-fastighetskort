@@ -372,7 +372,7 @@ function popupHtml(e){
   <div class="prec">${PREC[e.prec]||""}</div>
   <div class="links">${e.url?`<a href="${esc(e.url)}" target="_blank" rel="noopener">Källa ↗</a>`:""}<a href="${MK(e)}" target="_blank" rel="noopener">${e.fid?"Fastigheten i Min karta":"Platsen i Min karta"} ↗</a></div>
   ${e.sam?`<div class="sum" id="sum-${e.key}" hidden>${esc(e.sam)}</div>`:""}
-  <div class="acts">${e.url||e.sam?`<button class="btn" data-act="sum" data-key="${e.key}" type="button">${e.sam?"Visa sammanfattning":e.samBest?"Sammanfattning beställd ⏳":"Sammanfatta dokumentet"}</button>`:""}<button class="btn ${e.bevakad?"on":""}" data-act="watch" data-key="${e.key}" type="button">${e.bevakad?"⚑ Bevakas – sluta bevaka":"⚑ Bevaka"}</button><button class="btn" data-act="hide" data-key="${e.key}" type="button">${e.dold?"Visa igen":"Dölj"}</button></div></div>`;
+  <div class="acts">${e.sam?`<button class="btn" data-act="sum" data-key="${e.key}" type="button">Visa sammanfattning</button>`:""}<button class="btn ${e.bevakad?"on":""}" data-act="watch" data-key="${e.key}" type="button">${e.bevakad?"⚑ Bevakas – sluta bevaka":"⚑ Bevaka"}</button><button class="btn" data-act="hide" data-key="${e.key}" type="button">${e.dold?"Visa igen":"Dölj"}</button></div></div>`;
 }
 function makeMarker(e){
   const c=colorOf(e);let m;
@@ -392,8 +392,6 @@ document.addEventListener("click",async ev=>{
   const e=ITEMS.find(x=>x.key===b.dataset.key);if(!e)return;
   if(b.dataset.act==="sum"){
     if(e.sam){const el=document.getElementById("sum-"+e.key);el.hidden=!el.hidden;b.textContent=el.hidden?"Visa sammanfattning":"Dölj sammanfattning";return;}
-    if(e.samBest){toast("Redan beställd – sammanfattningen dyker upp här inom ett par timmar (vardagar).");return;}
-    if(await patch(e,{"Sammanfatta":true})){e.samBest=true;b.textContent="Sammanfattning beställd ⏳";toast("Beställd. Claude läser dokumentet och skriver en sammanfattning inom ett par timmar.");}
     return;}
   if(b.dataset.act==="watch"){const v=!e.bevakad;if(await patch(e,{"Bevakad":v})){e.bevakad=v;refresh(e);}}
   if(b.dataset.act==="hide"){const v=!e.dold;if(await patch(e,{"Dold":v})){e.dold=v;map.closePopup();refresh();}}
@@ -482,15 +480,10 @@ function renderNotes(){
     b.innerHTML=`<span class="d">${esc(v.datum)}</span><span class="ty ${v.bevakad?"w":""}">${v.bevakad?"⚑ ":""}${esc(v.typ)}</span><span class="tx"><b>${esc(v.rubrik)}</b>${v.text?` <span>– ${esc(v.text)}</span>`:""}</span>`;
     b.onclick=()=>{const e=ITEMS.find(x=>v.links.includes(x.id));if(e)focusItem(e);else if(v.kalla)window.open(v.kalla,"_blank","noopener");};
     row.appendChild(b);
-    if(v.kalla||v.sam){const s=document.createElement("button");s.type="button";s.className="sumb";
+    if(v.sam){const s=document.createElement("button");s.type="button";s.className="sumb";
       const box=document.createElement("div");box.className="sum";box.hidden=true;box.textContent=v.sam;
-      s.textContent=v.sam?"Sammanfattning":v.samBest?"Beställd ⏳":"Sammanfatta";
-      s.onclick=async()=>{
-        if(v.sam){box.hidden=!box.hidden;s.classList.toggle("on",!box.hidden);return;}
-        if(v.samBest){toast("Redan beställd – sammanfattningen dyker upp här inom ett par timmar (vardagar).");return;}
-        try{await api(`${AT.ev}/${v.id}`,{method:"PATCH",body:JSON.stringify({fields:{"Sammanfatta":true}})});v.samBest=true;s.textContent="Beställd ⏳";toast("Beställd. Claude läser dokumentet och skriver en sammanfattning inom ett par timmar.");}
-        catch(err){const m=String(err.message);toast(m.startsWith("403")?"Nyckeln får bara läsa. Lägg till data.records:write för att kunna beställa sammanfattningar.":"Kunde inte spara: "+m,true);}
-      };
+      s.textContent="Sammanfattning";
+      s.onclick=()=>{box.hidden=!box.hidden;s.classList.toggle("on",!box.hidden);};
       row.appendChild(s);w.appendChild(box);}
     $("evlist").appendChild(w);
   }
