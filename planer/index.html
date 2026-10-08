@@ -254,7 +254,7 @@ function toTM(lat,lon){const a=6378137,f=1/298.257222101,k0=.9996,l0=15*Math.PI/
 /* ---------- Data ---------- */
 let ITEMS=[], EVENTS=[], LIVE=false;
 function fromPublic(){return PUBLIC.map((e,i)=>({id:null,key:"p"+i,nyckel:e.nyckel,namn:e.namn,kommun:e.kommun,typ:"Detaljplan",grupp:e.grupp,skede:e.skede,kategori:e.typ,info:e.info,moj:e.tidigt,fbet:e.fbet||"",fid:e.fid||"",lat:e.lat,lon:e.lon,prec:e.prec,url:e.url,fokus:!!e.fokus,bevakad:false,dold:false,tillagd:"",lagakraft:""}));}
-function fromRecord(r){const f=r.fields;return {id:r.id,key:r.id,nyckel:f["Nyckel"]||"",bolag:f["Bolag"]||"",namn:f["Namn"]||"",kommun:f["Kommun"]||"Övrig",typ:f["Typ"]||"Detaljplan",grupp:f["Grupp"]||"tidigt",skede:f["Skede"]||"",kategori:f["Kategori"]||"",info:f["Info"]||"",moj:f["Möjlighet"]||"",fbet:f["Fastighet"]||"",fid:f["Fastighets-id"]||"",lat:f["Lat"],lon:f["Lon"],prec:f["Lägesprecision"]||"ungefar",url:f["Källa"]||"",fokus:!!f["Fokus"],bevakad:!!f["Bevakad"],dold:!!f["Dold"],tillagd:f["Tillagd"]||"",lagakraft:f["Laga kraft"]||""};}
+function fromRecord(r){const f=r.fields;return {id:r.id,key:r.id,nyckel:f["Nyckel"]||"",bolag:f["Bolag"]||"",namn:f["Namn"]||"",kommun:TARGET.includes(f["Kommun"])?f["Kommun"]:"Övrig",typ:f["Typ"]||"Detaljplan",grupp:f["Grupp"]||"tidigt",skede:f["Skede"]||"",kategori:f["Kategori"]||"",info:f["Info"]||"",moj:f["Möjlighet"]||"",fbet:f["Fastighet"]||"",fid:f["Fastighets-id"]||"",lat:f["Lat"],lon:f["Lon"],prec:f["Lägesprecision"]||"ungefar",url:f["Källa"]||"",fokus:!!f["Fokus"],bevakad:!!f["Bevakad"],dold:!!f["Dold"],tillagd:f["Tillagd"]||"",lagakraft:f["Laga kraft"]||""};}
 const isOwn=e=>!!e.bolag;
 const isPlan=e=>e.typ==="Detaljplan"&&!e.bolag;
 const isCase=e=>(e.typ==="Förhandsbesked"||e.typ==="Eget ärende")&&!e.bolag;
