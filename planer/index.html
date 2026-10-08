@@ -524,7 +524,7 @@ async function start(throwOnError=false){
   else{
     try{const {recs,evs,crm}=await loadLive();LIVE=true;
       ITEMS=recs.map(fromRecord);
-      EVENTS=evs.map(r=>({datum:r.fields["Datum"]||"",typ:r.fields["Typ"]||"",rubrik:r.fields["Rubrik"]||"",text:r.fields["Text"]||"",kalla:r.fields["Källa"]||"",bevakad:!!r.fields["Bevakad"],links:r.fields["Ärende"]||[],created:r.createdTime||"",id:r.id,sam:r.fields["Sammanfattning"]||"",samBest:!!r.fields["Sammanfatta"]}));
+      EVENTS=evs.filter(r=>!r.fields["Dold"]).map(r=>({datum:r.fields["Datum"]||"",typ:r.fields["Typ"]||"",rubrik:r.fields["Rubrik"]||"",text:r.fields["Text"]||"",kalla:r.fields["Källa"]||"",bevakad:!!r.fields["Bevakad"],links:r.fields["Ärende"]||[],created:r.createdTime||"",id:r.id,sam:r.fields["Sammanfattning"]||"",samBest:!!r.fields["Sammanfatta"]}));
       applyCrm(crm);
       const have=new Set(ITEMS.map(e=>e.nyckel));const missing=fromPublic().filter(e=>!have.has(e.nyckel));
       ITEMS=ITEMS.concat(missing);$("seed").hidden=!missing.length;$("seedbtn").textContent=`Lägg in ${missing.length} saknade planer i Airtable`;
